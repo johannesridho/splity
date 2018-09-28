@@ -1,0 +1,13 @@
+*.env
+*.log
+.editorconfig
+.gitignore
+.idea
+.nsprc
+.vscode
+node_modules
+README.md
+src
+tsconfig.json
+tsconfig.lint.json
+tslint.json
