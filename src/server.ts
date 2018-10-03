@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import app from "./app";
 import config from "./config";
-import logger from "./utils/logger";
+import logger from "./util/logger";
 
 app.set("port", config.app.port);
 const server = createServer(app as any);
@@ -14,10 +14,7 @@ function onError(error: NodeJS.ErrnoException) {
     throw error;
   }
 
-  const bind =
-    typeof config.app.port === "string"
-      ? "Pipe " + config.app.port
-      : "Port " + config.app.port;
+  const bind = typeof config.app.port === "string" ? "Pipe " + config.app.port : "Port " + config.app.port;
 
   switch (error.code) {
     case "EACCES":
@@ -35,8 +32,7 @@ function onError(error: NodeJS.ErrnoException) {
 
 function onListening() {
   const address = server.address();
-  const bind =
-    typeof address === "string" ? "pipe " + address : "port " + address.port;
+  const bind = typeof address === "string" ? "pipe " + address : "port " + address.port;
   logger.info(`Listening on ${bind}`);
   logger.info(`Environment : ${config.app.env}`);
 }

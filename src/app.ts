@@ -5,8 +5,8 @@ import { NextFunction } from "express-serve-static-core";
 import * as helmet from "helmet";
 import * as morgan from "morgan";
 import dialogflowRouter from "./dialogflow-handler/dialogflowController";
-import ErrorResponse from "./errors/ErrorResponse";
-import logger from "./utils/logger";
+import ErrorResponse from "./error/ErrorResponse";
+import logger from "./util/logger";
 
 const app = express();
 
@@ -37,11 +37,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     return next(err);
   }
 
-  logger.error(
-    `${err.status || 500} - ${err.message} - ${req.method} - ${
-      req.originalUrl
-    } - ${req.ip}`
-  );
+  logger.error(`${err.status || 500} - ${err.message} - ${req.method} - ${req.originalUrl} - ${req.ip}`);
 
   const status = err.status || 500;
   res.status(status);
