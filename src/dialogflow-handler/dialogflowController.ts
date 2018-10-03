@@ -1,6 +1,6 @@
 import dialogflowFulfillment = require("dialogflow-fulfillment");
 import { Request, Response, Router } from "express";
-import logger from "../utils/logger";
+import logger from "../util/logger";
 import * as versionService from "../version/versionService";
 
 const router = Router();

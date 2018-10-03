@@ -7,6 +7,15 @@ const config = {
     env: process.env.NODE_ENV || "development",
     port: process.env.PORT || 8080,
     version: process.env.npm_package_version
+  },
+  db: {
+    dialect: "postgres",
+    host: "127.0.0.1",
+    logging: false,
+    name: process.env.DB_NAME || "splity",
+    password: process.env.DB_PASSWORD || "",
+    port: parseInt(process.env.DB_PORT || "5432", 10),
+    username: process.env.DB_USERNAME || ""
   }
 };
 

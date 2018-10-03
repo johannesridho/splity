@@ -23,7 +23,9 @@
     "morgan": "^1.9.0",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^4.38.1",
+    "pg-native": "^3.0.0",
+    "sequelize": "^4.39.0",
+    "sequelize-cli": "^4.1.1",
     "winston": "^3.1.0"
   },
   "devDependencies": {
@@ -62,7 +64,7 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,ts,tsx,css,scss}": [
-      "prettier --write",
+      "prettier --print-width 120 --write",
       "git add"
     ]
   }
