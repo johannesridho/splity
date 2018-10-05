@@ -49,22 +49,9 @@ export function settleDebt(debtId: string, payId: string, channelId: string) {
       updateUsersNormally(debt, payment.amount);
     } else {
       updateBillById(debt.id, 0 - newDebtAmount, debt.debtor, debt.creditor);
-      const debtor = getUserById(debt.debtor).value();
-      const creditor = getUserById(debt.creditor).value();
-      const newDebtorDebtAmount = debtor.debt - payment.amount > 0 ? debtor.debt - payment.amount : 0;
-      const newCreditorCreditAmount = creditor.credit - payment.amount > 0 ? creditor.credit - payment.amount : 0;
-      const delta = 0 - newDebtAmount;
-      updateUser(debtor.id, { credit: debtor.credit + delta, debt: newDebtorDebtAmount });
-      updateUser(creditor.id, { credit: newCreditorCreditAmount, debt: creditor.debt + delta });
+      updateUsersWithNegativeDelta(debt, payment);
     }
   }
-}
-
-function updateUsersNormally(debt: BillInterface, changeAmount: number) {
-  const debtor = getUserById(debt.debtor).value();
-  const creditor = getUserById(debt.creditor).value();
-  updateUser(debtor.id, { debt: debtor.debt - changeAmount });
-  updateUser(creditor.id, { credit: creditor.credit - changeAmount });
 }
 
 function deleteBillById(id: string) {
@@ -88,6 +75,23 @@ function updateBillById(id: string, amount: number, creditor: string, debtor: st
       }
     }
   );
+}
+
+function updateUsersNormally(debt: BillInterface, changeAmount: number) {
+  const debtor = getUserById(debt.debtor).value();
+  const creditor = getUserById(debt.creditor).value();
+  updateUser(debtor.id, { debt: debtor.debt - changeAmount });
+  updateUser(creditor.id, { credit: creditor.credit - changeAmount });
+}
+
+function updateUsersWithNegativeDelta(debt: BillInterface, payment: BillInterface) {
+  const debtor = getUserById(debt.debtor).value();
+  const creditor = getUserById(debt.creditor).value();
+  const newDebtorDebtAmount = debtor.debt - payment.amount > 0 ? debtor.debt - payment.amount : 0;
+  const newCreditorCreditAmount = creditor.credit - payment.amount > 0 ? creditor.credit - payment.amount : 0;
+  const delta = payment.amount - debt.amount;
+  updateUser(debtor.id, { credit: debtor.credit + delta, debt: newDebtorDebtAmount });
+  updateUser(creditor.id, { credit: newCreditorCreditAmount, debt: creditor.debt + delta });
 }
 
 function isChannelExist(channelId: string) {
