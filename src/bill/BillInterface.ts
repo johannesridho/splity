@@ -1,6 +1,6 @@
 export interface BillInterface {
   id: string;
-  channel_id: string;
+  channelId: string;
   debtor: string;
   creditor: string;
   amount: number;
