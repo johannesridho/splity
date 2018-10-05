@@ -8,11 +8,10 @@ export function getUserById(id: string) {
   }) as Bluebird<UserInterface>;
 }
 
-export function updateUser(id: string, debt: number, credit: number) {
+export function updateUser(id: string, changes: { debt?: number; credit?: number }) {
   return User.update(
     {
-      credit,
-      debt
+      ...changes
     },
     {
       where: {

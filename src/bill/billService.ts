@@ -1,5 +1,6 @@
 import Bluebird = require("bluebird");
 import { getChannelById } from "../channel/channelService";
+import { getUserById, updateUser } from "../user/userService";
 import { Bill } from "./bill";
 import { BillInterface } from "./BillInterface";
 
@@ -42,12 +43,28 @@ export function settleDebt(debtId: string, payId: string, channelId: string) {
     deleteBillById(payId);
     if (newDebtAmount === 0) {
       deleteBillById(debt.id);
+      updateUsersNormally(debt, payment.amount);
     } else if (newDebtAmount > 0) {
       updateBillById(debt.id, newDebtAmount, debt.creditor, debt.debtor);
+      updateUsersNormally(debt, payment.amount);
     } else {
       updateBillById(debt.id, 0 - newDebtAmount, debt.debtor, debt.creditor);
+      const debtor = getUserById(debt.debtor).value();
+      const creditor = getUserById(debt.creditor).value();
+      const newDebtorDebtAmount = debtor.debt - payment.amount > 0 ? debtor.debt - payment.amount : 0;
+      const newCreditorCreditAmount = creditor.credit - payment.amount > 0 ? creditor.credit - payment.amount : 0;
+      const delta = 0 - newDebtAmount;
+      updateUser(debtor.id, { credit: debtor.credit + delta, debt: newDebtorDebtAmount });
+      updateUser(creditor.id, { credit: newCreditorCreditAmount, debt: creditor.debt + delta });
     }
   }
+}
+
+function updateUsersNormally(debt: BillInterface, changeAmount: number) {
+  const debtor = getUserById(debt.debtor).value();
+  const creditor = getUserById(debt.creditor).value();
+  updateUser(debtor.id, { debt: debtor.debt - changeAmount });
+  updateUser(creditor.id, { credit: creditor.credit - changeAmount });
 }
 
 function deleteBillById(id: string) {
