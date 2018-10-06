@@ -6,3 +6,5 @@ export const sequelize = new Sequelize(config.db.name, config.db.username, confi
   operatorsAliases: false,
   port: config.db.port
 });
+
+sequelize.sync();
