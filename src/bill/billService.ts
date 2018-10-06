@@ -1,5 +1,5 @@
 import Bluebird = require("bluebird");
-import { Bill } from "./Bill";
+import { Bill } from "./bill";
 import { BillInterface } from "./BillInterface";
 
 export function getBillById(id: string) {
@@ -41,10 +41,10 @@ export function addBillByDetails(
 //       deleteBillById(debt.id);
 //       updateUsersNormally(debt, payment.amount);
 //     } else if (newDebtAmount > 0) {
-//       updateBillById(debt.id, newDebtAmount, debt.creditor, debt.debtor);
+//       updateBillById(debt.id, newDebtAmount, debt.creditor);
 //       updateUsersNormally(debt, payment.amount);
 //     } else {
-//       updateBillById(debt.id, 0 - newDebtAmount, debt.debtor, debt.creditor);
+//       updateBillById(debt.id, 0 - newDebtAmount, debt.creditor);
 //       updateUsersWithNegativeDelta(debt, payment);
 //     }
 //   }
@@ -58,12 +58,11 @@ export function addBillByDetails(
 //   });
 // }
 
-// function updateBillById(id: string, amount: number, creditor: string, debtor: string) {
+// function updateBillById(id: string, amount: number, creditor: string) {
 //   Bill.update(
 //     {
 //       amount,
-//       creditor,
-//       debtor
+//       creditor
 //     },
 //     {
 //       where: {

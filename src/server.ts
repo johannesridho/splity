@@ -1,7 +1,6 @@
 import { createServer } from "http";
 import app from "./app";
 import config from "./config";
-import { User } from "./user/User";
 import logger from "./util/logger";
 
 app.set("port", config.app.port);
@@ -9,15 +8,6 @@ const server = createServer(app as any);
 server.listen(config.app.port);
 server.on("error", onError);
 server.on("listening", onListening);
-
-User.sync({ force: true }).then(() => {
-  return User.create({
-    credit: 0,
-    debt: 0,
-    name: "Johannes",
-    username: "jo"
-  });
-});
 
 function onError(error: NodeJS.ErrnoException) {
   if (error.syscall !== "listen") {
