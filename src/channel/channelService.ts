@@ -1,20 +1,21 @@
 import Bluebird = require("bluebird");
 import { Channel } from "./channel";
 import { ChannelInterface } from "./ChannelInterface";
+import { createChannelUser } from "./User/channelUserService";
 
 export function getChannelById(id: string) {
   return Channel.findById(id, {
-    attributes: ["id", "name", "key", "userId"]
+    attributes: ["id", "name", "key"]
   }) as Bluebird<ChannelInterface>;
 }
 
-export function getChannelByName(name: string) {
-  return Channel.findAll({
-    where: {
-      name
-    }
-  }) as Bluebird<ChannelInterface[]>;
-}
+// export function getChannelByName(name: string) {
+//   return Channel.findAll({
+//     where: {
+//       name
+//     }
+//   }) as Bluebird<ChannelInterface[]>;
+// }
 
 export function getChannelByKeyAndName(key: string, name: string) {
   return Channel.findAll({
@@ -25,14 +26,7 @@ export function getChannelByKeyAndName(key: string, name: string) {
   }) as Bluebird<ChannelInterface[]>;
 }
 
-export function addChannel(channel: ChannelInterface) {
-  return Channel.create({
-    key: channel.key,
-    name: channel.name
-  }) as Bluebird<ChannelInterface>;
-}
-
-export function addChannelByDetails(key: string, name: string, userId: string) {
+export function createChannel(key: string, name: string) {
   return Channel.create({
     key,
     name
@@ -41,13 +35,9 @@ export function addChannelByDetails(key: string, name: string, userId: string) {
 
 export function joinChannel(key: string, name: string, userId: string) {
   const channels: Bluebird<ChannelInterface[]> = getChannelByKeyAndName(key, name);
-  if (len(channels)) {
-    return addChannelByDetails(key, name, userId);
+  if (channels.value().length > 0) {
+    return createChannelUser(channels.value()[0].id, userId);
   } else {
     throw new Error("invalid key");
   }
-}
-
-function len(channels: Bluebird<ChannelInterface[]>) {
-  return channels.value().length > 0;
 }

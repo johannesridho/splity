@@ -8,13 +8,7 @@ export function getBillById(id: string) {
   }) as Bluebird<BillInterface>;
 }
 
-export function addBillByDetails(
-  channelId: string,
-  creditor: string,
-  amount: number,
-  status: string,
-  description: string
-) {
+export function addBill(channelId: string, creditor: string, amount: number, status: string, description: string) {
   return Bill.create({
     amount,
     channelId,
