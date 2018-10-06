@@ -1,11 +1,10 @@
 import * as Sequelize from "sequelize";
 import { sequelize } from "../sequelize";
 
-export const Bill = sequelize.define("bill", {
+export const Bill = sequelize.define("bills", {
   amount: Sequelize.DECIMAL,
   channelId: Sequelize.STRING,
   creditor: Sequelize.STRING,
-  debtor: Sequelize.STRING,
   description: Sequelize.STRING,
   status: Sequelize.STRING
 });

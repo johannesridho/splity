@@ -28,16 +28,14 @@ export function getChannelByKeyAndName(key: string, name: string) {
 export function addChannel(channel: ChannelInterface) {
   return Channel.create({
     key: channel.key,
-    name: channel.name,
-    userId: channel.userId
+    name: channel.name
   }) as Bluebird<ChannelInterface>;
 }
 
 export function addChannelByDetails(key: string, name: string, userId: string) {
   return Channel.create({
     key,
-    name,
-    userId
+    name
   }) as Bluebird<ChannelInterface>;
 }
 
