@@ -1,7 +1,7 @@
 import Bluebird = require("bluebird");
 import { Channel } from "./channel";
 import { ChannelInterface } from "./ChannelInterface";
-import { createChannelUser } from "./User/channelUserService";
+import { createChannelUser } from "./user/channelUserService";
 
 export function getChannelById(id: string) {
   return Channel.findById(id, {
@@ -18,11 +18,14 @@ export function getChannelByKeyAndName(key: string, name: string) {
   }) as Bluebird<ChannelInterface[]>;
 }
 
-export function createChannel(key: string, name: string) {
-  return Channel.create({
+export async function createChannel(name: string) {
+  const key = Math.floor(1000 + Math.random() * 9000);
+  const channel = (await Channel.create({
     key,
     name
-  }) as Bluebird<ChannelInterface>;
+  })) as Bluebird<ChannelInterface>;
+  return `Your channel ${channel.get("name")} is created. To join the channel, give this key : ${channel.get("key")} to 
+    your friends`;
 }
 
 export function joinChannel(key: string, name: string, userId: string) {
