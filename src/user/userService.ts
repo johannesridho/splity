@@ -1,5 +1,5 @@
 import Bluebird = require("bluebird");
-import { User } from "./user";
+import { User } from "./User";
 import { UserInterface } from "./UserInterface";
 
 export function getUserById(id: string) {

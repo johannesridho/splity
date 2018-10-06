@@ -5,7 +5,6 @@ export const Bill = sequelize.define("bill", {
   amount: Sequelize.DECIMAL,
   channelId: Sequelize.STRING,
   creditor: Sequelize.STRING,
-  debtor: Sequelize.STRING,
   description: Sequelize.STRING,
   status: Sequelize.STRING
 });
