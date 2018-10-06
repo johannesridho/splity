@@ -9,6 +9,17 @@ export function getUserById(id: string) {
   }) as Bluebird<UserInterface>;
 }
 
+export function createUser(id: string) {
+  // todo: get user's display name with profile api (https://developers.line.me/en/reference/messaging-api/#get-profile)
+  return User.create({
+    credit: 0,
+    debt: 0,
+    id,
+    name: "",
+    username: ""
+  }) as Bluebird<UserInterface>;
+}
+
 export function updateUserById(
   id: string,
   changes: { debt?: number; credit?: number; name?: string; username?: string }
