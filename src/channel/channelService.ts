@@ -9,14 +9,6 @@ export function getChannelById(id: string) {
   }) as Bluebird<ChannelInterface>;
 }
 
-// export function getChannelByName(name: string) {
-//   return Channel.findAll({
-//     where: {
-//       name
-//     }
-//   }) as Bluebird<ChannelInterface[]>;
-// }
-
 export function getChannelByKeyAndName(key: string, name: string) {
   return Channel.findAll({
     where: {

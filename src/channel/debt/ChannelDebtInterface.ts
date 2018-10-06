@@ -5,3 +5,10 @@ export interface ChannelDebtInterface {
   creditor: string;
   amount: number;
 }
+
+export interface OptionalChannelDebtSimpleInterface {
+  channelId?: string;
+  debtor?: string;
+  creditor?: string;
+  amount?: number;
+}
