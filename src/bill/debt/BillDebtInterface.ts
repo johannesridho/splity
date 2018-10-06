@@ -5,3 +5,10 @@ export interface BillDebtInterface {
   amount: number;
   status: string;
 }
+
+export interface OptionalBillDebtSimpleInterface {
+  billId?: string;
+  debtor?: string;
+  amount?: number;
+  status?: string;
+}

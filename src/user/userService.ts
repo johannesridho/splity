@@ -1,6 +1,7 @@
 import Bluebird = require("bluebird");
+import { getChannelDebtByDetails } from "./../channel/debt/channelDebtService";
 import { User } from "./user";
-import { UserInterface } from "./UserInterface";
+import { UserInterface, UserStatusInterface } from "./UserInterface";
 
 export function getUserById(id: string) {
   return User.findById(id, {
@@ -8,7 +9,10 @@ export function getUserById(id: string) {
   }) as Bluebird<UserInterface>;
 }
 
-export function updateUser(id: string, changes: { debt?: number; credit?: number }) {
+export function updateUserById(
+  id: string,
+  changes: { debt?: number; credit?: number; name?: string; username?: string }
+) {
   return User.update(
     {
       ...changes
@@ -19,4 +23,20 @@ export function updateUser(id: string, changes: { debt?: number; credit?: number
       }
     }
   );
+}
+
+export function getDebtStatus(userId: string): UserStatusInterface {
+  const creditDetails = getChannelDebtByDetails({ creditor: userId }).value();
+  const debtDetails = getChannelDebtByDetails({ debtor: userId }).value();
+  let credit = 0;
+  creditDetails.forEach(creditDetail => (credit += creditDetail.amount));
+  let debt = 0;
+  debtDetails.forEach(debtDetail => (debt += debtDetail.amount));
+
+  return {
+    credit,
+    creditDetails,
+    debt,
+    debtDetails
+  };
 }
