@@ -10,29 +10,27 @@ export function getChannelById(id: string) {
 }
 
 export function getChannelByKeyAndName(key: string, name: string) {
-  return Channel.findAll({
+  const lowerCaseName = name.toLowerCase();
+  return Channel.find({
     where: {
       key,
-      name
+      name: lowerCaseName
     }
-  }) as Bluebird<ChannelInterface[]>;
+  }) as Bluebird<ChannelInterface>;
 }
 
-export async function createChannel(name: string) {
+export async function createChannel(name: string, userId: string) {
+  const lowerCaseName = name.toLowerCase();
   const key = Math.floor(1000 + Math.random() * 9000);
   const channel = (await Channel.create({
     key,
-    name
+    name: lowerCaseName
   })) as Bluebird<ChannelInterface>;
-  return `Your channel ${channel.get("name")} is created. To join the channel, give this key : ${channel.get("key")} to 
-    your friends`;
+  await createChannelUser(channel.value().id, userId);
+  return channel;
 }
 
-export function joinChannel(key: string, name: string, userId: string) {
-  const channels: Bluebird<ChannelInterface[]> = getChannelByKeyAndName(key, name);
-  if (channels.value().length > 0) {
-    return createChannelUser(channels.value()[0].id, userId);
-  } else {
-    throw new Error("invalid key");
-  }
+export async function joinChannel(key: string, name: string, userId: string) {
+  const channel: ChannelInterface = await getChannelByKeyAndName(key, name);
+  return createChannelUser(channel.id, userId);
 }
