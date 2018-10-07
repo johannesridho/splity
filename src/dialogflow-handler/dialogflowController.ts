@@ -39,8 +39,11 @@ async function createChannel(agent: any) {
     agent.originalRequest.payload.data.source.userId
   );
 
-  agent.add(`Your channel ${channel.name} is created. To join the channel, give this key : ${channel.key} to 
-    your friends`);
+  agent.add(
+    `Your channel ${channel.name} is created. To join the channel, give this key : ${
+      channel.key
+    } to your friends and ask them to add Splity`
+  );
 }
 
 async function joinChannel(agent: any) {
@@ -75,9 +78,9 @@ async function createTransaction(agent: any) {
   );
 
   agent.add(
-    `Your Bill for ${bill.bill.description} is created. You has paid Rp${
+    `Your Bill for ${bill.bill.description} has been created. You have paid Rp${
       bill.bill.amount
-    }. Anyone in the group should pay you Rp${bill.channelDebts[0].amount}`
+    } for this, so anyone in the channel should pay you Rp${bill.channelDebts[0].amount}.`
   );
 }
 
