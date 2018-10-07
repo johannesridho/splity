@@ -40,7 +40,7 @@ export async function addEqualSplitBill(
       creditor,
       channelUser.userId
     );
-    const billDebt = await addBillDebt(amount, bill.id, channelUser.userId, "pending");
+    const billDebt = await addBillDebt(amount / channelUsers.length, bill.id, channelUser.userId, "pending");
     await billDebts.push(billDebt);
     await channelDebts.push(channelDebt);
   }
