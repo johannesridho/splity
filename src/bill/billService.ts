@@ -3,13 +3,14 @@ import { Error } from "tslint/lib/error";
 import { getChannelByKey } from "../channel/channelService";
 import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
-  addChannelDebt,
+  addOrIncreaseChannelDebt,
   getChannelDebtByDetails,
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
 import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
+import { BillDebtInterface } from "./debt/BillDebtInterface";
 import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDebtService";
 
 export function getBillById(id: string) {
@@ -28,16 +29,25 @@ export async function addEqualSplitBill(
   const channelId = (await getChannelByKey(channelKey)).id;
   const channelUsers = await getChannelUsersByChannelId(channelId.toString());
   const channelDebts: ChannelDebtInterface[] = [];
-
-  for (const channelUser of channelUsers) {
-    const channelDebt = await addChannelDebt(amount / channelUsers.length, channelId, creditor, channelUser.userId);
-    await channelDebts.push(channelDebt);
-  }
+  const billDebts: BillDebtInterface[] = [];
 
   const bill = await createBill(amount, channelId, creditor, description, status);
 
+  for (const channelUser of channelUsers) {
+    const channelDebt = await addOrIncreaseChannelDebt(
+      amount / channelUsers.length,
+      channelId,
+      creditor,
+      channelUser.userId
+    );
+    const billDebt = await addBillDebt(amount, bill.id, channelUser.userId, "pending");
+    await billDebts.push(billDebt);
+    await channelDebts.push(channelDebt);
+  }
+
   return {
     bill,
+    billDebts,
     channelDebts
   };
 }
@@ -78,7 +88,7 @@ export function confirmPayment(channelId: string, billId: string, billDebtId: st
       channelId,
       creditor: payBill.value().creditor,
       debtor: payBillDebt.value().debtor
-    }).value()[0];
+    })[0];
     if (channelDebt.amount <= 0) {
       settleDebt(payBill.value().id);
     }
