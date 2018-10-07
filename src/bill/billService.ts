@@ -15,7 +15,7 @@ import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDeb
 
 export function getBillById(id: string) {
   return Bill.findById(id, {
-    attributes: ["id", "channelId", "debtor", "creditor", "description", "amount", "status"]
+    attributes: ["id", "channelId", "debtor", "creditor", "description", "amount", "name", "status"]
   }) as Bluebird<BillInterface>;
 }
 
@@ -24,6 +24,7 @@ export async function addEqualSplitBill(
   channelKey: string,
   creditor: string,
   description: string,
+  name: string,
   status: string
 ) {
   const channelId = (await getChannelByKey(channelKey)).id;
@@ -31,7 +32,7 @@ export async function addEqualSplitBill(
   const channelDebts: ChannelDebtInterface[] = [];
   const billDebts: BillDebtInterface[] = [];
 
-  const bill = await createBill(amount, channelId, creditor, description, status);
+  const bill = await createBill(amount, channelId, creditor, description, status, name);
 
   for (const channelUser of channelUsers) {
     const channelDebt = await addOrIncreaseChannelDebt(
@@ -101,12 +102,20 @@ export function settleDebt(billId: string) {
   });
 }
 
-function createBill(amount: number, channelId: string, creditor: string, description: string, status: string) {
+function createBill(
+  amount: number,
+  channelId: string,
+  creditor: string,
+  description: string,
+  status: string,
+  name: string = "dummy"
+) {
   return Bill.create({
     amount,
     channelId,
     creditor,
     description,
+    name,
     status
   }) as Bluebird<BillInterface>;
 }
