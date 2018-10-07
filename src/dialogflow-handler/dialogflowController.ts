@@ -78,9 +78,9 @@ async function createTransaction(agent: any) {
   );
 
   agent.add(
-    `Your Bill for ${bill.bill.description} is created. You has paid Rp${
+    `Your Bill for ${bill.bill.description} has been created. You have paid Rp${
       bill.bill.amount
-    }. Anyone in the group should pay you Rp${bill.channelDebts[0].amount}`
+    } for this, so anyone in the channel should pay you Rp${bill.channelDebts[0].amount}.`
   );
 }
 
