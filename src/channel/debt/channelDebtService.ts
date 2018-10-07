@@ -16,7 +16,7 @@ export async function getChannelDebtByDetails(details: OptionalChannelDebtSimple
 
 export async function addOrIncreaseChannelDebt(amount: number, channelId: string, creditor: string, debtor: string) {
   const channelDebt = await getChannelDebtByDetails({ channelId: channelId.toString(), creditor, debtor });
-  if (channelDebt.length === 0) {
+  if (channelDebt.length > 0) {
     await updateChannelDebtById(channelDebt[0].id, {
       amount: channelDebt[0].amount + amount,
       channelId: channelId.toString(),

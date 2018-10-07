@@ -74,6 +74,7 @@ async function createTransaction(agent: any) {
     agent.parameters["channel-key"],
     agent.originalRequest.payload.data.source.userId,
     agent.parameters["transaction-name"],
+    agent.parameters["creditor-name"],
     "bill"
   );
 
