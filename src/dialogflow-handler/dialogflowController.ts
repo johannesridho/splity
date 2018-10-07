@@ -4,7 +4,6 @@ import { BillInterface } from "../bill/BillInterface";
 import * as billService from "../bill/billService";
 import { ChannelInterface } from "../channel/ChannelInterface";
 import * as channelService from "../channel/channelService";
-import { ChannelUserInterface } from "../channel/user/ChannelUserInterface";
 import logger from "../util/logger";
 import * as versionService from "../version/versionService";
 
@@ -54,16 +53,11 @@ async function joinChannel(agent: any) {
   const key = agent.parameters["channel-key"];
   const name = agent.parameters["channel-name"];
 
-  const channelUser: ChannelUserInterface = await channelService.joinChannel(
-    key,
-    name,
-    agent.originalRequest.payload.data.source.userId
-  );
-
-  if (channelUser) {
+  try {
+    await channelService.joinChannel(key, name, agent.originalRequest.payload.data.source.userId);
     agent.add(`You've successfully joined channel ${name}`);
-  } else {
-    agent.add(`Channel with name ${name} and key ${key} is not exist.`);
+  } catch (error) {
+    agent.add(error.message);
   }
 }
 
