@@ -25,8 +25,8 @@ export async function createChannel(name: string, userId: string) {
   const channel = (await Channel.create({
     key,
     name: lowerCaseName
-  })) as Bluebird<ChannelInterface>;
-  await createChannelUser(channel.value().id, userId);
+  })) as ChannelInterface;
+  await createChannelUser(channel.id, userId);
   return channel;
 }
 
