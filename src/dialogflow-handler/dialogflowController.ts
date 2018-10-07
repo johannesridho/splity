@@ -39,8 +39,11 @@ async function createChannel(agent: any) {
     agent.originalRequest.payload.data.source.userId
   );
 
-  agent.add(`Your channel ${channel.name} is created. To join the channel, give this key : ${channel.key} to 
-    your friends`);
+  agent.add(
+    `Your channel ${channel.name} is created. To join the channel, give this key : ${
+      channel.key
+    } to your friends and ask them to add Splity`
+  );
 }
 
 async function joinChannel(agent: any) {
