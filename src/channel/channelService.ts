@@ -19,6 +19,14 @@ export function getChannelByKeyAndName(key: string, name: string) {
   }) as Bluebird<ChannelInterface>;
 }
 
+export function getChannelByKey(key: string) {
+  return Channel.find({
+    where: {
+      key
+    }
+  }) as Bluebird<ChannelInterface>;
+}
+
 export async function createChannel(name: string, userId: string) {
   const lowerCaseName = name.toLowerCase();
   const key = Math.floor(1000 + Math.random() * 9000);

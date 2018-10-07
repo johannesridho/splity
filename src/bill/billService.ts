@@ -1,10 +1,12 @@
 import Bluebird = require("bluebird");
-import { getChannelById } from "../channel/channelService";
+import { Error } from "tslint/lib/error";
+import { getChannelByKey } from "../channel/channelService";
 import {
   addChannelDebt,
   getChannelDebtByDetails,
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
+import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
 import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDebtService";
@@ -15,17 +17,23 @@ export function getBillById(id: string) {
   }) as Bluebird<BillInterface>;
 }
 
-export function addBill(
+export async function addBill(
   amount: number,
-  channelId: string,
+  channelKey: string,
   creditor: string,
   description: string,
   status: string,
   debtor?: string
 ) {
+  const channelId = getChannelByKey(channelKey).value().id;
   if (debtor && status === "bill") {
-    addChannelDebt(amount, channelId, creditor, debtor);
+    const channelUsers = getChannelUsersByChannelId(channelId).value();
+
+    channelUsers.forEach(channelUser => {
+      addChannelDebt(amount, channelId, creditor, channelUser.userId);
+    });
   }
+
   return Bill.create({
     amount,
     channelId,
@@ -35,11 +43,17 @@ export function addBill(
   }) as Bluebird<BillInterface>;
 }
 
-export function payDebt(channelId: string, debtor: string, creditor: string, amount: number, description: string) {
-  // note: pay bills by creating new bill with 'pay-debt` status
-  if (doesChannelExist(channelId)) {
-    const payBill = addBill(amount, channelId, creditor, description, "pay-debt");
-    addBillDebt(amount, payBill.value().id, debtor, "pending");
+export async function payDebt(
+  channelName: string,
+  debtor: string,
+  creditor: string,
+  amount: number,
+  description: string
+) {
+  const channel = getChannelByKey(channelName).value();
+  if (channel !== null || channel !== undefined) {
+    const payBill = await addBill(amount, channelName, creditor, description, "pay-debt");
+    addBillDebt(amount, payBill.id, debtor, "pending");
 
     return payBill;
     // todo: notify creditor
@@ -97,8 +111,4 @@ export function updateBillById(id: string, changes: OptionalBillSimpleInterface)
       }
     }
   );
-}
-
-function doesChannelExist(channelId: string) {
-  return getChannelById(channelId);
 }
