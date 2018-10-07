@@ -1,7 +1,8 @@
 import Bluebird = require("bluebird");
+import ErrorResponse from "../error/ErrorResponse";
 import { Channel } from "./channel";
 import { ChannelInterface } from "./ChannelInterface";
-import { createChannelUser } from "./user/channelUserService";
+import { createChannelUser, isChannelUserExist } from "./user/channelUserService";
 
 export function getChannelById(id: string) {
   return Channel.findById(id, {
@@ -32,5 +33,11 @@ export async function createChannel(name: string, userId: string) {
 
 export async function joinChannel(key: string, name: string, userId: string) {
   const channel: ChannelInterface = await getChannelByKeyAndName(key, name);
+  if (!channel) {
+    throw new ErrorResponse("`Channel with name ${name} and key ${key} is not exist.`", 404);
+  }
+  if (isChannelUserExist) {
+    throw new ErrorResponse("Sorry but you already joined this channel.", 400);
+  }
   return createChannelUser(channel.id, userId);
 }
