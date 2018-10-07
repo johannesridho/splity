@@ -15,6 +15,14 @@ export async function isChannelUserExist(channelId: string, userId: string) {
   })) as boolean;
 }
 
+export function getChannelUsersByChannelId(channelId: string) {
+  return ChannelUser.findAll({
+    where: {
+      channelId
+    }
+  }) as Bluebird<ChannelUserInterface[]>;
+}
+
 export function createChannelUser(channelId: string, userId: string) {
   return ChannelUser.create({
     channelId,

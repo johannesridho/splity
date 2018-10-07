@@ -1,10 +1,13 @@
 import Bluebird = require("bluebird");
-import { getChannelById } from "../channel/channelService";
+import { Error } from "tslint/lib/error";
+import { getChannelByKey } from "../channel/channelService";
+import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
   addChannelDebt,
   getChannelDebtByDetails,
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
+import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
 import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDebtService";
@@ -15,31 +18,39 @@ export function getBillById(id: string) {
   }) as Bluebird<BillInterface>;
 }
 
-export function addBill(
+export async function addEqualSplitBill(
   amount: number,
-  channelId: string,
+  channelKey: string,
   creditor: string,
   description: string,
-  status: string,
-  debtor?: string
+  status: string
 ) {
-  if (debtor && status === "bill") {
-    addChannelDebt(amount, channelId, creditor, debtor);
-  }
-  return Bill.create({
-    amount,
-    channelId,
-    creditor,
-    description,
-    status
-  }) as Bluebird<BillInterface>;
+  const channelId = (await getChannelByKey(channelKey)).id;
+  const channelUsers = await getChannelUsersByChannelId(channelId);
+  const channelDebts: ChannelDebtInterface[] = [];
+  channelUsers.forEach(channelUser => {
+    channelDebts.push(addChannelDebt(amount, channelId, creditor, channelUser.userId).value());
+  });
+
+  const bill = await createBill(amount, channelId, creditor, description, status).value();
+
+  return {
+    bill,
+    channelDebts
+  };
 }
 
-export function payDebt(channelId: string, debtor: string, creditor: string, amount: number, description: string) {
-  // note: pay bills by creating new bill with 'pay-debt` status
-  if (doesChannelExist(channelId)) {
-    const payBill = addBill(amount, channelId, creditor, description, "pay-debt");
-    addBillDebt(amount, payBill.value().id, debtor, "pending");
+export async function payDebt(
+  channelName: string,
+  debtor: string,
+  creditor: string,
+  amount: number,
+  description: string
+) {
+  const channel = getChannelByKey(channelName).value();
+  if (channel !== null || channel !== undefined) {
+    const payBill = await createBill(amount, channelName, creditor, description, "pay-debt");
+    addBillDebt(amount, payBill.id, debtor, "pending");
 
     return payBill;
     // todo: notify creditor
@@ -78,15 +89,17 @@ export function settleDebt(billId: string) {
   });
 }
 
-export function getBills(details: OptionalBillSimpleInterface) {
-  return Bill.findAll({
-    where: {
-      ...details
-    }
-  }) as Bluebird<BillInterface[]>;
+function createBill(amount: number, channelId: string, creditor: string, description: string, status: string) {
+  return Bill.create({
+    amount,
+    channelId,
+    creditor,
+    description,
+    status
+  }) as Bluebird<BillInterface>;
 }
 
-export function updateBillById(id: string, changes: OptionalBillSimpleInterface) {
+function updateBillById(id: string, changes: OptionalBillSimpleInterface) {
   return Bill.update(
     {
       ...changes
@@ -97,8 +110,4 @@ export function updateBillById(id: string, changes: OptionalBillSimpleInterface)
       }
     }
   );
-}
-
-function doesChannelExist(channelId: string) {
-  return getChannelById(channelId);
 }

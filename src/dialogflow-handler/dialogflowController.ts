@@ -1,5 +1,6 @@
 import dialogflowFulfillment = require("dialogflow-fulfillment");
 import { Request, Response, Router } from "express";
+import * as billService from "../bill/billService";
 import { ChannelInterface } from "../channel/ChannelInterface";
 import * as channelService from "../channel/channelService";
 import logger from "../util/logger";
@@ -20,6 +21,7 @@ router.post("/", (req: Request, res: Response) => {
   // todo: find a better way to map the intents with the services (use reflection maybe)
   intentMap.set("create-channel", createChannel);
   intentMap.set("join-channel", joinChannel);
+  intentMap.set("create-transaction", createTransaction);
 
   intentMap.set("get-version", getVersion);
 
@@ -56,6 +58,27 @@ async function joinChannel(agent: any) {
   } catch (error) {
     agent.add(error.message);
   }
+}
+
+async function createTransaction(agent: any) {
+  if (!agent.originalRequest.payload.data) {
+    agent.add("Please use Line Messenger to be able to use this bot");
+    return;
+  }
+
+  const bill = await billService.addEqualSplitBill(
+    agent.parameters["transaction-amount"],
+    agent.parameters["channel-key"],
+    agent.originalRequest.payload.data.source.userId,
+    agent.parameters["transaction-name"],
+    "bill"
+  );
+
+  agent.add(
+    `Your Bill for ${bill.bill.description} is created. You has paid Rp${
+      bill.bill.amount
+    }. Anyone in the group should pay you Rp[${bill.channelDebts[0].amount}`
+  );
 }
 
 function getVersion(agent: any) {
