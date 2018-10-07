@@ -3,7 +3,7 @@ import { Error } from "tslint/lib/error";
 import { getChannelByKey } from "../channel/channelService";
 import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
-  addChannelDebt,
+  addOrIncreaseChannelDebt,
   getChannelDebtByDetails,
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
@@ -34,7 +34,12 @@ export async function addEqualSplitBill(
   const bill = await createBill(amount, channelId, creditor, description, status);
 
   for (const channelUser of channelUsers) {
-    const channelDebt = await addChannelDebt(amount / channelUsers.length, channelId, creditor, channelUser.userId);
+    const channelDebt = await addOrIncreaseChannelDebt(
+      amount / channelUsers.length,
+      channelId,
+      creditor,
+      channelUser.userId
+    );
     const billDebt = await addBillDebt(amount, bill.id, channelUser.userId, "pending");
     await billDebts.push(billDebt);
     await channelDebts.push(channelDebt);
@@ -83,7 +88,7 @@ export function confirmPayment(channelId: string, billId: string, billDebtId: st
       channelId,
       creditor: payBill.value().creditor,
       debtor: payBillDebt.value().debtor
-    }).value()[0];
+    })[0];
     if (channelDebt.amount <= 0) {
       settleDebt(payBill.value().id);
     }
