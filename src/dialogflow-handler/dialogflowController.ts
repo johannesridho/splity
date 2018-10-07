@@ -1,6 +1,5 @@
 import dialogflowFulfillment = require("dialogflow-fulfillment");
 import { Request, Response, Router } from "express";
-import { BillInterface } from "../bill/BillInterface";
 import * as billService from "../bill/billService";
 import { ChannelInterface } from "../channel/ChannelInterface";
 import * as channelService from "../channel/channelService";
@@ -67,19 +66,19 @@ async function createTransaction(agent: any) {
     return;
   }
 
-  const debtor = agent.parameters["paid-by"]
-    ? agent.parameters["paid-by"]
-    : agent.originalRequest.payload.data.source.userId;
-  const bill: BillInterface = await billService.addBill(
+  const bill = await billService.addEqualSplitBill(
     agent.parameters["transaction-amount"],
     agent.parameters["channel-key"],
-    agent.parameters["pay-to"],
+    agent.originalRequest.payload.data.source.userId,
     agent.parameters["transaction-name"],
-    "bill",
-    debtor
+    "bill"
   );
 
-  agent.add(`Your Bill for ${bill.description} is created. ${debtor} owe ${bill.creditor} Rp${bill.amount}`);
+  agent.add(
+    `Your Bill for ${bill.bill.description} is created. You has paid Rp${
+      bill.bill.amount
+    }. Anyone in the group should pay you Rp[${bill.channelDebts[0].amount}`
+  );
 }
 
 function getVersion(agent: any) {

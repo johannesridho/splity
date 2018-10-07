@@ -1,6 +1,7 @@
 import Bluebird = require("bluebird");
 import { Error } from "tslint/lib/error";
 import { getChannelByKey } from "../channel/channelService";
+import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
   addChannelDebt,
   getChannelDebtByDetails,
@@ -17,30 +18,26 @@ export function getBillById(id: string) {
   }) as Bluebird<BillInterface>;
 }
 
-export async function addBill(
+export async function addEqualSplitBill(
   amount: number,
   channelKey: string,
   creditor: string,
   description: string,
-  status: string,
-  debtor?: string
+  status: string
 ) {
-  const channelId = getChannelByKey(channelKey).value().id;
-  if (debtor && status === "bill") {
-    const channelUsers = getChannelUsersByChannelId(channelId).value();
+  const channelId = (await getChannelByKey(channelKey)).id;
+  const channelUsers = await getChannelUsersByChannelId(channelId);
+  const channelDebts: ChannelDebtInterface[] = [];
+  channelUsers.forEach(channelUser => {
+    channelDebts.push(addChannelDebt(amount, channelId, creditor, channelUser.userId).value());
+  });
 
-    channelUsers.forEach(channelUser => {
-      addChannelDebt(amount, channelId, creditor, channelUser.userId);
-    });
-  }
+  const bill = await createBill(amount, channelId, creditor, description, status).value();
 
-  return Bill.create({
-    amount,
-    channelId,
-    creditor,
-    description,
-    status
-  }) as Bluebird<BillInterface>;
+  return {
+    bill,
+    channelDebts
+  };
 }
 
 export async function payDebt(
@@ -52,7 +49,7 @@ export async function payDebt(
 ) {
   const channel = getChannelByKey(channelName).value();
   if (channel !== null || channel !== undefined) {
-    const payBill = await addBill(amount, channelName, creditor, description, "pay-debt");
+    const payBill = await createBill(amount, channelName, creditor, description, "pay-debt");
     addBillDebt(amount, payBill.id, debtor, "pending");
 
     return payBill;
@@ -92,15 +89,17 @@ export function settleDebt(billId: string) {
   });
 }
 
-export function getBills(details: OptionalBillSimpleInterface) {
-  return Bill.findAll({
-    where: {
-      ...details
-    }
-  }) as Bluebird<BillInterface[]>;
+function createBill(amount: number, channelId: string, creditor: string, description: string, status: string) {
+  return Bill.create({
+    amount,
+    channelId,
+    creditor,
+    description,
+    status
+  }) as Bluebird<BillInterface>;
 }
 
-export function updateBillById(id: string, changes: OptionalBillSimpleInterface) {
+function updateBillById(id: string, changes: OptionalBillSimpleInterface) {
   return Bill.update(
     {
       ...changes
