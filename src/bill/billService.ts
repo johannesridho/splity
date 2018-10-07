@@ -10,6 +10,7 @@ import {
 import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
+import { BillDebtInterface } from "./debt/BillDebtInterface";
 import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDebtService";
 
 export function getBillById(id: string) {
@@ -28,16 +29,20 @@ export async function addEqualSplitBill(
   const channelId = (await getChannelByKey(channelKey)).id;
   const channelUsers = await getChannelUsersByChannelId(channelId.toString());
   const channelDebts: ChannelDebtInterface[] = [];
-
-  for (const channelUser of channelUsers) {
-    const channelDebt = await addChannelDebt(amount / channelUsers.length, channelId, creditor, channelUser.userId);
-    await channelDebts.push(channelDebt);
-  }
+  const billDebts: BillDebtInterface[] = [];
 
   const bill = await createBill(amount, channelId, creditor, description, status);
 
+  for (const channelUser of channelUsers) {
+    const channelDebt = await addChannelDebt(amount / channelUsers.length, channelId, creditor, channelUser.userId);
+    const billDebt = await addBillDebt(amount, bill.id, channelUser.userId, "pending");
+    await billDebts.push(billDebt);
+    await channelDebts.push(channelDebt);
+  }
+
   return {
     bill,
+    billDebts,
     channelDebts
   };
 }
