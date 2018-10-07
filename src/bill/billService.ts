@@ -30,7 +30,7 @@ export async function addEqualSplitBill(
   const channelDebts: ChannelDebtInterface[] = [];
 
   for (const channelUser of channelUsers) {
-    const channelDebt = await addChannelDebt(amount, channelId, creditor, channelUser.userId);
+    const channelDebt = await addChannelDebt(amount / channelUsers.length, channelId, creditor, channelUser.userId);
     await channelDebts.push(channelDebt);
   }
 
