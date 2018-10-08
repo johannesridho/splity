@@ -3,6 +3,7 @@ import { Request, Response, Router } from "express";
 import * as billService from "../bill/billService";
 import { ChannelInterface } from "../channel/ChannelInterface";
 import * as channelService from "../channel/channelService";
+import * as channelDebtService from "../channel/debt/channelDebtService";
 import logger from "../util/logger";
 import * as versionService from "../version/versionService";
 
@@ -22,7 +23,7 @@ router.post("/", (req: Request, res: Response) => {
   intentMap.set("create-channel", createChannel);
   intentMap.set("join-channel", joinChannel);
   intentMap.set("create-transaction", createTransaction);
-
+  intentMap.set("credit-debt-status", creditDebtStatus);
   intentMap.set("get-version", getVersion);
 
   agent.handleRequest(intentMap);
@@ -83,6 +84,16 @@ async function createTransaction(agent: any) {
       bill.bill.amount
     } for this, so anyone in the channel should pay you Rp${bill.channelDebts[0].amount}.`
   );
+}
+
+async function creditDebtStatus(agent: any) {
+  if (!agent.originalRequest.payload.data) {
+    agent.add("Please use Line Messenger to be able to use this bot");
+    return;
+  }
+
+  const response = await channelDebtService.getCreditDebtStatus(agent.originalRequest.payload.data.source.userId);
+  agent.add(response);
 }
 
 function getVersion(agent: any) {
