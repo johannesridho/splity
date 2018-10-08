@@ -1,4 +1,5 @@
 import Bluebird = require("bluebird");
+import { getChannelById } from "../channelService";
 import { ChannelDebt } from "./channelDebt";
 import { ChannelDebtInterface, OptionalChannelDebtSimpleInterface } from "./ChannelDebtInterface";
 
@@ -12,14 +13,18 @@ export async function getCreditDebtStatus(userId: string): Promise<string> {
     creditor: userId
   });
 
-  debts.forEach(debt => {
+  debts.forEach(async debt => {
     // todo: use name instead of userId
-    response = response.concat(`\nChannel ${debt.channelId}: You owe ${debt.creditor} IDR ${debt.amount},`);
+    response = response.concat(
+      `\nChannel ${await getChannelById(debt.channelId)}: You owe ${debt.creditor} IDR ${debt.amount},`
+    );
   });
 
-  credits.forEach(credit => {
+  credits.forEach(async credit => {
     // todo: use name instead of userId
-    response = response.concat(`\nChannel ${credit.channelId}: ${credit.debtor} owes you IDR ${credit.amount},`);
+    response = response.concat(
+      `\nChannel ${await getChannelById(credit.channelId)}: ${credit.debtor} owes you IDR ${credit.amount},`
+    );
   });
 
   return response;

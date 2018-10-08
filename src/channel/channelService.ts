@@ -4,10 +4,10 @@ import { Channel } from "./channel";
 import { ChannelInterface } from "./ChannelInterface";
 import { createChannelUser, isChannelUserExist } from "./user/channelUserService";
 
-export function getChannelById(id: string) {
-  return Channel.findById(id, {
+export async function getChannelById(id: string) {
+  return (await Channel.findById(id, {
     attributes: ["id", "name", "key"]
-  }) as Bluebird<ChannelInterface>;
+  })) as ChannelInterface;
 }
 
 export function getChannelByKeyAndName(key: string, name: string) {
