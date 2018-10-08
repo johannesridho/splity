@@ -23,6 +23,7 @@ router.post("/", (req: Request, res: Response) => {
   intentMap.set("join-channel", joinChannel);
   intentMap.set("create-transaction", createTransaction);
   intentMap.set("pay-debt", payDebt);
+  intentMap.set("confirm-payment", confirmPayment);
 
   intentMap.set("get-version", getVersion);
 
@@ -93,6 +94,27 @@ async function payDebt(agent: any) {
   }
 
   const payment = await billService.payDebt(
+    agent.parameters["channel-key"],
+    agent.originalRequest.payload.data.source.userId,
+    agent.parameters["creditor-name"],
+    agent.parameters["transaction-amount"],
+    agent.parameters["transaction-name"]
+  );
+
+  agent.add(
+    `Your Paymnet for ${payment.description} has been created. Please notify ${
+      payment.name
+    } to confirm/accept your payment`
+  );
+}
+
+async function confirmPayment(agent: any) {
+  if (!agent.originalRequest.payload.data) {
+    agent.add("Please use Line Messenger to be able to use this bot");
+    return;
+  }
+
+  const payment = await billService.confirmPayment(
     agent.parameters["channel-key"],
     agent.originalRequest.payload.data.source.userId,
     agent.parameters["creditor-name"],

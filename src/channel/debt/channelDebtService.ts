@@ -14,6 +14,15 @@ export async function getChannelDebtByDetails(details: OptionalChannelDebtSimple
   })) as ChannelDebtInterface[];
 }
 
+export async function getChannelDebtChannelIdsByDetails(details: OptionalChannelDebtSimpleInterface) {
+  return (await ChannelDebt.findAll({
+    attributes: ["channelId"],
+    where: {
+      ...details
+    }
+  })) as string[];
+}
+
 export async function addOrIncreaseChannelDebt(amount: number, channelId: string, creditor: string, debtor: string) {
   const channelDebt = await getChannelDebtByDetails({ channelId: channelId.toString(), creditor, debtor });
   if (channelDebt.length > 0) {

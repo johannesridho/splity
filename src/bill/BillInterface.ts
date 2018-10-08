@@ -9,10 +9,10 @@ export interface BillInterface {
 }
 
 export interface OptionalBillSimpleInterface {
-  channelId?: string;
-  creditor?: string;
-  amount?: number;
-  name?: string;
-  status?: string;
-  description?: string;
+  channelId?: string | string[];
+  creditor?: string | string[];
+  amount?: number | number[];
+  name?: string | string[];
+  status?: string | string[];
+  description?: string | string[];
 }

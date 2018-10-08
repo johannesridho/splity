@@ -4,6 +4,7 @@ import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
   addOrIncreaseChannelDebt,
   getChannelDebtByDetails,
+  getChannelDebtChannelIdsByDetails,
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
 import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
@@ -17,6 +18,14 @@ export function getBillById(id: string) {
   return Bill.findById(id, {
     attributes: ["id", "channelId", "debtor", "creditor", "description", "amount", "name", "status"]
   }) as Bluebird<BillInterface>;
+}
+
+export async function getBillByDetails(details: OptionalBillSimpleInterface) {
+  return (await Bill.findAll({
+    where: {
+      ...details
+    }
+  })) as BillInterface[];
 }
 
 export async function addEqualSplitBill(
@@ -53,45 +62,44 @@ export async function addEqualSplitBill(
   };
 }
 
-export async function payDebt(
-  channelKey: string,
-  debtor: string,
-  creditor: string,
-  amount: number,
-  description: string
-) {
-  const channel = await getChannelByKey(channelKey);
-  const channelDebt = await getChannelDebtByDetails({ channelId: channel.id, creditor, debtor });
-  if (channel !== null && channelDebt.length !== 0) {
-    const payBill = await createBill(amount, channelKey, creditor, description, "pay-debt");
-    await addBillDebt(amount, payBill.id, debtor, "pending");
+export async function payDebt(debtor: string, creditorName: string, amount: number, description: string) {
+  const channelIds = await getChannelDebtChannelIdsByDetails({ debtor });
+  const bills = await getBillByDetails({ channelId: channelIds, description, name: creditorName, status: "bill" });
+  if (bills.length > 0) {
+    const bill = bills[0];
+    const payBill = await createBill(amount, bill.channelId, creditorName, description, "pay-debt");
 
     return payBill;
   }
 
-  throw new ErrorResponse("Sorry but requested channel is not exist.", 400);
+  throw new ErrorResponse("Sorry but there is no bill that match your details, please try again", 400);
 }
 
-export function confirmPayment(channelId: string, billId: string, billDebtId: string, autoSettle: boolean = true) {
-  const payBill = getBillById(billId);
-  const payBillDebt = getBillDebtById(billDebtId);
-  updateBillById(payBill.value().id, { status: "pay-debt-accepted" });
-  updateBillDebtById(payBillDebt.value().id, { status: "accepted" });
+export async function confirmPayment(
+  channelId: string,
+  billId: string,
+  billDebtId: string,
+  autoSettle: boolean = true
+) {
+  const payBill = await getBillById(billId);
+  const payBillDebt = await getBillDebtById(billDebtId);
+  await updateBillById(payBill.id, { status: "pay-debt-accepted" });
+  await updateBillDebtById(payBillDebt.id, { status: "accepted" });
 
   updateChannelDebtByDetails(
-    { channelId, debtor: payBillDebt.value().debtor, creditor: payBill.value().creditor },
-    { amount: payBill.value().amount },
+    { channelId, debtor: payBillDebt.debtor, creditor: payBill.creditor },
+    { amount: payBill.amount },
     true
   );
 
   if (autoSettle) {
     const channelDebt = getChannelDebtByDetails({
       channelId,
-      creditor: payBill.value().creditor,
-      debtor: payBillDebt.value().debtor
+      creditor: payBill.creditor,
+      debtor: payBillDebt.debtor
     })[0];
     if (channelDebt.amount <= 0) {
-      settleDebt(payBill.value().id);
+      settleDebt(payBill.id);
     }
   }
 }
