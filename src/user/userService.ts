@@ -1,5 +1,6 @@
 import Bluebird = require("bluebird");
-import { getChannelDebtByDetails } from "./../channel/debt/channelDebtService";
+import { getChannelDebtByDetails } from "../channel/debt/channelDebtService";
+import { getUserProfile } from "./line/lineService";
 import { User } from "./user";
 import { UserInterface } from "./UserInterface";
 
@@ -9,13 +10,14 @@ export function getUserById(id: string) {
   }) as Bluebird<UserInterface>;
 }
 
-export function createUser(id: string) {
-  // todo: get user's display name with profile api (https://developers.line.me/en/reference/messaging-api/#get-profile)
+// todo: trigger create user at welcome intent
+export async function createUser(id: string) {
+  const lineProfile = await getUserProfile(id);
   return User.create({
     credit: 0,
     debt: 0,
     id,
-    name: "",
+    name: lineProfile.displayName,
     username: ""
   }) as Bluebird<UserInterface>;
 }

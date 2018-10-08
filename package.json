@@ -24,6 +24,7 @@
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
     "pg-native": "^3.0.0",
+    "request-promise": "^4.2.2",
     "sequelize": "^4.39.0",
     "sequelize-cli": "^4.1.1",
     "winston": "^3.1.0"
@@ -37,6 +38,7 @@
     "@types/morgan": "^1.7.35",
     "@types/node": "^10.9.4",
     "@types/pg": "^7.4.10",
+    "@types/request-promise": "^4.1.42",
     "@types/sequelize": "^4.27.25",
     "@types/winston": "^2.4.4",
     "dialogflow-fulfillment": "^0.5.0",
