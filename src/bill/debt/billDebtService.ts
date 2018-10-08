@@ -6,12 +6,13 @@ export function getBillDebtById(id: string) {
   return BillDebt.findById(id) as Bluebird<BillDebtInterface>;
 }
 
-export function addBillDebt(amount: number, billId: string, debtor: string, status: string) {
+export function addBillDebt(amount: number, billId: string, debtor: string, status: string, debtorName: string = "") {
   return BillDebt.create({
     amount,
     billId,
     debtor,
-    status
+    debtorName: debtorName.toLowerCase(),
+    status: status.toLowerCase()
   }) as Bluebird<BillDebtInterface>;
 }
 

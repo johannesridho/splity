@@ -88,22 +88,22 @@ async function createTransaction(agent: any) {
 }
 
 async function payDebt(agent: any) {
-  if (!agent.originalRequest.payload.data) {
-    agent.add("Please use Line Messenger to be able to use this bot");
-    return;
-  }
+  // if (!agent.originalRequest.payload.data) {
+  //   agent.add("Please use Line Messenger to be able to use this bot");
+  //   return;
+  // }
 
   const payment = await billService.payDebt(
-    agent.parameters["channel-key"],
-    agent.originalRequest.payload.data.source.userId,
+    // agent.originalRequest.payload.data.source.userId,
+    "Uf7238gd500748c6195af116f964f1d795",
     agent.parameters["creditor-name"],
     agent.parameters["transaction-amount"],
     agent.parameters["transaction-name"]
   );
 
   agent.add(
-    `Your Paymnet for ${payment.description} has been created. Please notify ${
-      payment.name
+    `Your Payment, IDR ${payment.amount} for ${payment.description} has been created. Please notify ${
+      agent.parameters["creditor-name"]
     } to confirm/accept your payment`
   );
 }
@@ -115,18 +115,13 @@ async function confirmPayment(agent: any) {
   }
 
   const payment = await billService.confirmPayment(
-    agent.parameters["channel-key"],
     agent.originalRequest.payload.data.source.userId,
     agent.parameters["creditor-name"],
     agent.parameters["transaction-amount"],
     agent.parameters["transaction-name"]
   );
 
-  agent.add(
-    `Your Paymnet for ${payment.description} has been created. Please notify ${
-      payment.name
-    } to confirm/accept your payment`
-  );
+  agent.add(`Your Payment for ${payment} has been created. Please notify ${payment} to confirm/accept your payment`);
 }
 
 function getVersion(agent: any) {

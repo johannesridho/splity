@@ -11,7 +11,6 @@ import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
 import ErrorResponse from "../error/ErrorResponse";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
-import { BillDebtInterface } from "./debt/BillDebtInterface";
 import { addBillDebt, getBillDebtById, updateBillDebtById } from "./debt/billDebtService";
 
 export function getBillById(id: string) {
@@ -39,7 +38,6 @@ export async function addEqualSplitBill(
   const channelId = (await getChannelByKey(channelKey)).id;
   const channelUsers = await getChannelUsersByChannelId(channelId.toString());
   const channelDebts: ChannelDebtInterface[] = [];
-  const billDebts: BillDebtInterface[] = [];
 
   const bill = await createBill(amount, channelId, creditor, description, status, name);
 
@@ -50,26 +48,29 @@ export async function addEqualSplitBill(
       creditor,
       channelUser.userId
     );
-    const billDebt = await addBillDebt(amount / channelUsers.length, bill.id, channelUser.userId, "pending");
-    await billDebts.push(billDebt);
     await channelDebts.push(channelDebt);
   }
 
   return {
     bill,
-    billDebts,
     channelDebts
   };
 }
 
 export async function payDebt(debtor: string, creditorName: string, amount: number, description: string) {
   const channelIds = await getChannelDebtChannelIdsByDetails({ debtor });
-  const bills = await getBillByDetails({ channelId: channelIds, description, name: creditorName, status: "bill" });
-  if (bills.length > 0) {
-    const bill = bills[0];
-    const payBill = await createBill(amount, bill.channelId, creditorName, description, "pay-debt");
+  if (channelIds.length > 0) {
+    const bills = await getBillByDetails({ channelId: channelIds, description, name: creditorName, status: "bill" });
 
-    return payBill;
+    if (bills.length > 0) {
+      const bill = bills[0];
+
+      // const payBill = await createBill(amount, bill.channelId, creditorName, description, "pay-debt");
+      const debtorName = description; // todo: get debtor name from API
+      await addBillDebt(amount, bill.id, debtor, "pending", debtorName);
+
+      return bill;
+    }
   }
 
   throw new ErrorResponse("Sorry but there is no bill that match your details, please try again", 400);
@@ -122,9 +123,9 @@ function createBill(
     amount,
     channelId,
     creditor,
-    description,
-    name,
-    status
+    description: description.toLowerCase(),
+    name: name.toLowerCase(),
+    status: status.toLowerCase()
   }) as Bluebird<BillInterface>;
 }
 
