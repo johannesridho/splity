@@ -2,6 +2,29 @@ import Bluebird = require("bluebird");
 import { ChannelDebt } from "./channelDebt";
 import { ChannelDebtInterface, OptionalChannelDebtSimpleInterface } from "./ChannelDebtInterface";
 
+export async function getCreditDebtStatus(userId: string): Promise<string> {
+  let response = "Here is the summary of your credit and debt: ";
+  const debts = await getChannelDebtByDetails({
+    debtor: userId
+  });
+
+  const credits = await getChannelDebtByDetails({
+    creditor: userId
+  });
+
+  debts.forEach(debt => {
+    // todo: use name instead of userId
+    response = response.concat(`\nChannel ${debt.channelId}: You owe ${debt.creditor} IDR ${debt.amount},`);
+  });
+
+  credits.forEach(credit => {
+    // todo: use name instead of userId
+    response = response.concat(`\nChannel ${credit.channelId}: ${credit.debtor} owes you IDR ${credit.amount},`);
+  });
+
+  return response;
+}
+
 export function getChannelDebtById(id: string) {
   return ChannelDebt.findById(id) as Bluebird<ChannelDebtInterface>;
 }
