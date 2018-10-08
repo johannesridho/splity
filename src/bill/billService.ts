@@ -1,5 +1,4 @@
 import Bluebird = require("bluebird");
-import { Error } from "tslint/lib/error";
 import { getChannelByKey } from "../channel/channelService";
 import { ChannelDebtInterface } from "../channel/debt/ChannelDebtInterface";
 import {
@@ -8,6 +7,7 @@ import {
   updateChannelDebtByDetails
 } from "../channel/debt/channelDebtService";
 import { getChannelUsersByChannelId } from "../channel/user/channelUserService";
+import ErrorResponse from "../error/ErrorResponse";
 import { Bill } from "./bill";
 import { BillInterface, OptionalBillSimpleInterface } from "./BillInterface";
 import { BillDebtInterface } from "./debt/BillDebtInterface";
@@ -54,25 +54,25 @@ export async function addEqualSplitBill(
 }
 
 export async function payDebt(
-  channelName: string,
+  channelKey: string,
   debtor: string,
   creditor: string,
   amount: number,
   description: string
 ) {
-  const channel = getChannelByKey(channelName).value();
-  if (channel !== null || channel !== undefined) {
-    const payBill = await createBill(amount, channelName, creditor, description, "pay-debt");
-    addBillDebt(amount, payBill.id, debtor, "pending");
+  const channel = await getChannelByKey(channelKey);
+  const channelDebt = await getChannelDebtByDetails({ channelId: channel.id, creditor, debtor });
+  if (channel !== null && channelDebt.length !== 0) {
+    const payBill = await createBill(amount, channelKey, creditor, description, "pay-debt");
+    await addBillDebt(amount, payBill.id, debtor, "pending");
 
     return payBill;
-    // todo: notify creditor
   }
 
-  throw new Error("Channel not exist");
+  throw new ErrorResponse("Sorry but requested channel is not exist.", 400);
 }
 
-export function confirmPayment(channelId: string, billId: string, billDebtId: string, autoSettle: boolean = false) {
+export function confirmPayment(channelId: string, billId: string, billDebtId: string, autoSettle: boolean = true) {
   const payBill = getBillById(billId);
   const payBillDebt = getBillDebtById(billDebtId);
   updateBillById(payBill.value().id, { status: "pay-debt-accepted" });

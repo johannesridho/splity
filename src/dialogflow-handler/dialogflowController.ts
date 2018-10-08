@@ -22,6 +22,7 @@ router.post("/", (req: Request, res: Response) => {
   intentMap.set("create-channel", createChannel);
   intentMap.set("join-channel", joinChannel);
   intentMap.set("create-transaction", createTransaction);
+  intentMap.set("pay-debt", payDebt);
 
   intentMap.set("get-version", getVersion);
 
@@ -79,9 +80,30 @@ async function createTransaction(agent: any) {
   );
 
   agent.add(
-    `Your Bill for ${bill.bill.description} has been created. You have paid Rp${
+    `Your Bill for ${bill.bill.description} has been created. You have paid IDR ${
       bill.bill.amount
-    } for this, so anyone in the channel should pay you Rp${bill.channelDebts[0].amount}.`
+    } for this, so anyone in the channel should pay you IDR ${bill.channelDebts[0].amount}.`
+  );
+}
+
+async function payDebt(agent: any) {
+  if (!agent.originalRequest.payload.data) {
+    agent.add("Please use Line Messenger to be able to use this bot");
+    return;
+  }
+
+  const payment = await billService.payDebt(
+    agent.parameters["channel-key"],
+    agent.originalRequest.payload.data.source.userId,
+    agent.parameters["creditor-name"],
+    agent.parameters["transaction-amount"],
+    agent.parameters["transaction-name"]
+  );
+
+  agent.add(
+    `Your Paymnet for ${payment.description} has been created. Please notify ${
+      payment.name
+    } to confirm/accept your payment`
   );
 }
 
