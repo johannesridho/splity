@@ -10,12 +10,15 @@ const config = {
   },
   db: {
     dialect: "postgres",
-    host: "127.0.0.1",
+    host: process.env.DB_HOST || "127.0.0.1",
     logging: false,
     name: process.env.DB_NAME || "splity",
     password: process.env.DB_PASSWORD || "",
     port: parseInt(process.env.DB_PORT || "5432", 10),
     username: process.env.DB_USERNAME || ""
+  },
+  line: {
+    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN
   }
 };
 
