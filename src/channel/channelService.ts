@@ -4,7 +4,7 @@ import { Channel } from "./channel";
 import { ChannelInterface } from "./ChannelInterface";
 import { createChannelUser, isChannelUserExist } from "./user/channelUserService";
 
-export async function getChannelById(id: string) {
+export async function getChannelById(id: string): Promise<ChannelInterface> {
   return (await Channel.findById(id, {
     attributes: ["id", "name", "key"]
   })) as ChannelInterface;

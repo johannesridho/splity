@@ -13,19 +13,19 @@ export async function getCreditDebtStatus(userId: string): Promise<string> {
     creditor: userId
   });
 
-  debts.forEach(async debt => {
-    // todo: use name instead of userId
-    response = response.concat(
-      `\nChannel ${await getChannelById(debt.channelId)}: You owe ${debt.creditor} IDR ${debt.amount},`
-    );
-  });
+  await Promise.all(
+    debts.map(async debt => {
+      const channel = await getChannelById(debt.channelId);
+      response = response.concat(`\nChannel ${channel.name}: You owe ${debt.creditor} IDR ${debt.amount},`);
+    })
+  );
 
-  credits.forEach(async credit => {
-    // todo: use name instead of userId
-    response = response.concat(
-      `\nChannel ${await getChannelById(credit.channelId)}: ${credit.debtor} owes you IDR ${credit.amount},`
-    );
-  });
+  await Promise.all(
+    credits.map(async credit => {
+      const channel = await getChannelById(credit.channelId);
+      response = response.concat(`\nChannel ${channel.name}: ${credit.debtor} owes you IDR ${credit.amount},`);
+    })
+  );
 
   return response;
 }
