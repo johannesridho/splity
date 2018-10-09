@@ -1,23 +1,28 @@
 # Splity
-Splity adalah bot untuk memecahkan masalah split bills. Seperti yang kita tahu, masyarakat Indonesia senang untuk hangout bersama teman-temannya dan untuk memudahkan pembayaran, biasanya pembayaran dilakukan oleh satu orang saja (creditor) lalu dilakukan perhitungan untuk biaya yang harus dibayar oleh masing-masing orang (debitor). Perhitungan secara manual dapat menyebabkan kesalahan perhitungan yang tinggi dan membutuhkan waktu yang lama apalagi jika jumlah pesertanya banyak. Tapi tenang saja, Splity hadir sebagai bot untuk membantu Anda memecahkan masalah tersebut. Pertama-tama, user perlu membuat channel dan mengundang teman yang terlibat dalam perhitungan split bills. Kemudian memasukkan tanggal, nama, dan nilai transaksi. Setelah itu, debitor dapat melakukan pembayaran dan jika pembayaran berhasil, creditor akan confirm pembayaran tersebut. Jika sudah selesai, transaksi ditutup oleh creditor karena semua hutang telah lunas dibayar.
+Splity is a split bills bot that will help you to calculate shared expense. Using Splity you can create a channel as a group for sharing shared expense calculation with your friends. After the debtor (people who owe the money) pay their debt, it will be confirmed by the creditor then if all of the debts are paid off, creditor can marked the bills as settled. You can add Splity line handler @splity to give a try!
 
 # Features 
-Anda dapat mencoba bot Splity dengan add akun @splity menggunakan akun Line Anda!
-1. Help - panduan daftar fitur yang disediakan Splity
-2. Create channel - untuk melakukan perhitungan split bills, langkah pertama yang harus dilakukan adalah membuat channel
-   sebagai wadah untuk track aktivitas transaksi antar user
-3. Invite friends - perhitungan split bills baru dapat dilakukan dengan jumlah minimal dua user dalam satu channel
-4. Confirm payment - Creditor akan melakukan confirm payment setelah debitor (orang yang memiliki utang) membayarkan utangnya
-5. See payment status - melihat status pembayaran apakah sudah dikonfirmasi (pembayaran telah diterima) oleh creditor atau 
-   belum. 
-6. Settle the debt - tutup transaksi karena semua hutang telah dibayar
+1. Create a channel to start bill split 
+Channel is container to start the transaction. After you creating a channel, Splity will generate a key as a password for your friends who want to join the channel.
+
+2. Invite your friends to join the channel 
+After successfully creating the channel and get the key, you can share it to your friends. Transaction only can be started if there are min 2 users in a channel.
+
+3. Confirm payment from your friends
+As a creditor (who lend a debt), you can confirm payment from your friends.
+
+4. See your payment status
+As a creditor and debitor (who owe the money) can check their payment status : waiting for confirmation (you still have a debt) or confirmed (paid off)
+
+6. Settle the debt
+As a creditor, you can settle the debt after all of your friends pay off their debt
 
 # Technologies / Tools
 1. Dialogflow
 2. Typescript
 3. Node
 
-## Getting started
+# Getting started
 Run these commands:
 1. yarn
 2. yarn build
