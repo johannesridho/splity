@@ -4,6 +4,7 @@ import * as billService from "../bill/billService";
 import { ChannelInterface } from "../channel/ChannelInterface";
 import * as channelService from "../channel/channelService";
 import * as channelDebtService from "../channel/debt/channelDebtService";
+import * as payDebtService from "../pay-debt/payDebtService";
 import logger from "../util/logger";
 import * as versionService from "../version/versionService";
 
@@ -24,6 +25,7 @@ router.post("/", (req: Request, res: Response) => {
   intentMap.set("join-channel", joinChannel);
   intentMap.set("create-transaction", createTransaction);
   intentMap.set("credit-debt-status", creditDebtStatus);
+  intentMap.set("pay-debt", createPayDebt);
   intentMap.set("get-version", getVersion);
 
   agent.handleRequest(intentMap);
@@ -83,6 +85,27 @@ async function createTransaction(agent: any) {
     `Your Bill for ${bill.bill.description} has been created. You have paid Rp${
       bill.bill.amount
     } for this, so anyone in the channel should pay you Rp${bill.channelDebts[0].amount}.`
+  );
+}
+
+async function createPayDebt(agent: any) {
+  if (!agent.originalRequest.payload.data) {
+    agent.add("Please use Line Messenger to be able to use this bot");
+    return;
+  }
+
+  // todo: handle two user with same name
+  const payDebt = await payDebtService.createPayDebt(
+    agent.parameters["transaction-amount"],
+    agent.parameters["channel-name"],
+    agent.parameters["creditor-name"],
+    agent.originalRequest.payload.data.source.userId
+  );
+
+  agent.add(
+    `The payment for your debt to ${payDebt.creditorName} is issued. Please wait for the ${
+      payDebt.creditorName
+    } to confirm or settle it.`
   );
 }
 

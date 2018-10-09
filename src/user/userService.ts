@@ -10,6 +10,15 @@ export function getUserById(id: string) {
   }) as Bluebird<UserInterface>;
 }
 
+// todo: need to fix this, name is not unique
+export async function getUserByName(name: string) {
+  return (await User.findOne({
+    where: {
+      name
+    }
+  })) as UserInterface;
+}
+
 // todo: trigger create user at welcome intent
 export async function createUser(id: string) {
   const lineProfile = await getUserProfile(id);

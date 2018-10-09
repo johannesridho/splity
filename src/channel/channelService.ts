@@ -20,6 +20,14 @@ export function getChannelByKeyAndName(key: string, name: string) {
   }) as Bluebird<ChannelInterface>;
 }
 
+export async function getChannelByName(name: string) {
+  return (await Channel.find({
+    where: {
+      name
+    }
+  })) as ChannelInterface;
+}
+
 export function getChannelByKey(key: string) {
   return Channel.find({
     where: {

@@ -1,5 +1,6 @@
 import Bluebird = require("bluebird");
-import { getChannelById } from "../channelService";
+import { ChannelInterface } from "../ChannelInterface";
+import { getChannelById, getChannelByName } from "../channelService";
 import { ChannelDebt } from "./channelDebt";
 import { ChannelDebtInterface, OptionalChannelDebtSimpleInterface } from "./ChannelDebtInterface";
 
@@ -32,6 +33,21 @@ export async function getCreditDebtStatus(userId: string): Promise<string> {
 
 export function getChannelDebtById(id: string) {
   return ChannelDebt.findById(id) as Bluebird<ChannelDebtInterface>;
+}
+
+export async function getChannelDebtByChannelNameAndCreditorIdAndDebtorId(
+  channelName: string,
+  creditorId: string,
+  debtorId: string
+) {
+  const channel = await getChannelByName(channelName);
+  return (await ChannelDebt.find({
+    where: {
+      channelId: channel.id,
+      creditor: creditorId,
+      debtor: debtorId
+    }
+  })) as ChannelInterface;
 }
 
 export async function getChannelDebtByDetails(details: OptionalChannelDebtSimpleInterface) {
