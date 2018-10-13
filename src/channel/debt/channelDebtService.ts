@@ -15,14 +15,14 @@ export async function getCreditDebtStatus(userId: string): Promise<string> {
   });
 
   await Promise.all(
-    debts.map(async debt => {
+    debts.map(async (debt) => {
       const channel = await getChannelById(debt.channelId);
       response = response.concat(`\nChannel ${channel.name}: You owe ${debt.creditor} IDR ${debt.amount},`);
     })
   );
 
   await Promise.all(
-    credits.map(async credit => {
+    credits.map(async (credit) => {
       const channel = await getChannelById(credit.channelId);
       response = response.concat(`\nChannel ${channel.name}: ${credit.debtor} owes you IDR ${credit.amount},`);
     })

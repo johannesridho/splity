@@ -53,8 +53,8 @@ export async function getDebtStatus(userId: string) {
   const debtDetails = await getChannelDebtByDetails({ debtor: userId });
   let credit = 0;
   let debt = 0;
-  creditDetails.forEach(creditDetail => (credit += creditDetail.amount));
-  debtDetails.forEach(debtDetail => (debt += debtDetail.amount));
+  creditDetails.forEach((creditDetail) => (credit += creditDetail.amount));
+  debtDetails.forEach((debtDetail) => (debt += debtDetail.amount));
 
   return {
     credit,
